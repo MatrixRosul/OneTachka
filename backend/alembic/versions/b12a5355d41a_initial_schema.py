@@ -103,3 +103,8 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_user_phone'), table_name='user')
     op.drop_table('user')
     # ### end Alembic commands ###
+    # Нативні PostgreSQL ENUM-типи op.drop_table не прибирає — дропаємо явно,
+    # інакше повторний upgrade впаде з "type already exists".
+    op.execute('DROP TYPE IF EXISTS orderstatus')
+    op.execute('DROP TYPE IF EXISTS vehicletype')
+    op.execute('DROP TYPE IF EXISTS role')

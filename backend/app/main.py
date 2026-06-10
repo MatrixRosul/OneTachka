@@ -11,10 +11,12 @@ from app.routers import auth, driver, orders
 app = FastAPI(title="OneTachka API", version="0.1.0")
 
 # Тонкий фронт (Vite) ходить із іншого origin — на час MVP дозволяємо все.
+# allow_credentials=False: авторизація через Bearer-заголовок, не cookie,
+# тож wildcard origin валідний (з credentials=True "*" заборонений специфікацією).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
