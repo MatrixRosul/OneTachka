@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.errors import AppError
-from app.routers import auth
+from app.routers import auth, driver
 
 app = FastAPI(title="OneTachka API", version="0.1.0")
 
@@ -61,6 +61,7 @@ async def handle_http_exception(request: Request, exc: StarletteHTTPException) -
 # --- Routes ---
 
 app.include_router(auth.router)
+app.include_router(driver.router)
 
 
 @app.get("/health")

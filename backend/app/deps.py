@@ -49,3 +49,8 @@ def require_role(*roles: Role) -> Callable[..., User]:
         return user
 
     return checker
+
+
+# Готові залежності під конкретні ролі.
+DriverUser = Annotated[User, Depends(require_role(Role.DRIVER))]
+ClientUser = Annotated[User, Depends(require_role(Role.CLIENT))]
