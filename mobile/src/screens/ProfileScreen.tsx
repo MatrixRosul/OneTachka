@@ -1,60 +1,47 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text } from 'react-native';
-import { T, FONT, VEHICLE_LABEL } from '../theme';
+import { useFocusEffect } from '@react-navigation/native';
+import { T, FONT } from '../theme';
 import { Screen } from '../components/Screen';
-import { Avatar, Card, PrimaryBtn, Stars, ScreenHeader } from '../components/ui';
-import { Icon } from '../components/Icon';
+import { Avatar, StatCards, ListCard, Row, ScreenHeader } from '../components/ui';
 import { useAuth } from '../AuthContext';
-
-function Row({ icon, label, value }: { icon: any; label: string; value: string }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
-      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name={icon} size={18} color={T.ink} />
-      </View>
-      <Text style={{ fontFamily: FONT.m, fontSize: 13.5, color: T.txt2, flex: 1 }}>{label}</Text>
-      <Text style={{ fontFamily: FONT.b, fontSize: 14, color: T.ink }}>{value}</Text>
-    </View>
-  );
-}
+import { api } from '../api';
 
 export function ProfileScreen() {
   const { me, logout } = useAuth();
+  const [count, setCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      api.myOrders().then((o) => setCount(o.length)).catch(() => {});
+    }, []),
+  );
+
   if (!me) return null;
-  const prof = me.driverProfile;
 
   return (
     <Screen>
       <ScreenHeader title="Профіль" />
-      <Card style={{ alignItems: 'center', paddingVertical: 22 }}>
-        <Avatar initials={(me.fullName ?? 'U')[0]} size={64} ring />
-        <Text style={{ fontFamily: FONT.xb, fontSize: 19, color: T.ink, marginTop: 12 }}>{me.fullName}</Text>
-        <Text style={{ fontFamily: FONT.m, fontSize: 13, color: T.txt2, marginTop: 2 }}>
-          {me.role === 'CLIENT' ? 'Клієнт' : 'Водій'} · {me.phone}
-        </Text>
-        <View style={{ marginTop: 10 }}>
-          <Stars value={me.ratingAvg} size={15} />
+
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+        <Avatar initials={(me.fullName ?? 'К')[0]} size={64} ring />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: FONT.xb, fontSize: 20, color: T.ink, letterSpacing: -0.5 }}>{me.fullName}</Text>
+          <Text style={{ fontFamily: FONT.m, fontSize: 13, color: T.txt2 }}>Клієнт · {me.phone}</Text>
         </View>
-        <Text style={{ fontFamily: FONT.m, fontSize: 12, color: T.txt3, marginTop: 2 }}>
-          {me.ratingCount} відгуків
-        </Text>
-      </Card>
+      </View>
 
-      <Card style={{ paddingVertical: 4 }}>
-        <Row icon="user" label="Роль" value={me.role === 'CLIENT' ? 'Клієнт' : 'Водій'} />
-        <Row icon="bell" label="Телефон" value={me.phone} />
-        {prof && (
-          <>
-            <Row icon="box" label="Авто" value={VEHICLE_LABEL[prof.vehicleType]} />
-            <Row icon="box" label="Вантажопідйомність" value={`${prof.capacityKg} кг`} />
-            <Row icon="shield" label="Номер" value={prof.licensePlate} />
-          </>
-        )}
-      </Card>
+      <StatCards
+        items={[
+          [String(count), 'замовлень'],
+          [me.ratingAvg.toFixed(1), 'рейтинг'],
+          [String(me.ratingCount), 'відгуків'],
+        ]}
+      />
 
-      <PrimaryBtn color={T.surface} txt={T.red} onPress={logout} style={{ borderWidth: 1.5, borderColor: T.border }}>
-        Вийти
-      </PrimaryBtn>
+      <ListCard>
+        <Row icon="arrow" title="Вийти" accent={T.red} chevron={false} last onPress={logout} />
+      </ListCard>
     </Screen>
   );
 }

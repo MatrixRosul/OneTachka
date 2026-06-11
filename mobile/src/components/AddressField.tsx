@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, Pressable, Platform, ActivityIndicator } from 'react-native';
 import { T, FONT } from '../theme';
 import { Icon, IconName } from './Icon';
+import { shortAddress } from '../cities';
 
 export interface Place {
   address: string;
@@ -16,11 +17,13 @@ interface Suggestion {
 }
 
 // Автодоповнення адрес через OpenStreetMap Nominatim (без ключа, по Україні).
-async function search(q: string): Promise<Suggestion[]> {
+async function search(q: string, near?: string): Promise<Suggestion[]> {
+  // Прив'язуємо до обраного міста, якщо його ще немає в запиті.
+  const query = near && !q.toLowerCase().includes(near.toLowerCase()) ? `${q}, ${near}` : q;
   const url =
     'https://nominatim.openstreetmap.org/search?format=json&addressdetails=0&limit=5' +
     '&accept-language=uk&countrycodes=ua&q=' +
-    encodeURIComponent(q);
+    encodeURIComponent(query);
   const headers: Record<string, string> = {};
   // Браузер не дає виставляти User-Agent; на нативі — додаємо (вимога Nominatim).
   if (Platform.OS !== 'web') headers['User-Agent'] = 'OnetachkaApp/1.0 (mvp)';
@@ -36,6 +39,7 @@ export function AddressField({
   label,
   value,
   onSelect,
+  near,
   divider,
 }: {
   icon: IconName;
@@ -43,6 +47,7 @@ export function AddressField({
   label: string;
   value: string;
   onSelect: (p: Place) => void;
+  near?: string;
   divider?: boolean;
 }) {
   const [text, setText] = useState(value);
@@ -67,7 +72,7 @@ export function AddressField({
     setLoading(true);
     const t = setTimeout(async () => {
       try {
-        setItems(await search(text.trim()));
+        setItems(await search(text.trim(), near));
       } catch {
         setItems([]);
       } finally {
@@ -75,13 +80,14 @@ export function AddressField({
       }
     }, 500);
     return () => clearTimeout(t);
-  }, [text, focused]);
+  }, [text, focused, near]);
 
   function choose(s: Suggestion) {
+    const addr = shortAddress(s.label, 2);
     picked.current = true;
-    setText(s.label);
+    setText(addr);
     setItems([]);
-    onSelect({ address: s.label, lat: s.lat, lng: s.lng });
+    onSelect({ address: addr, lat: s.lat, lng: s.lng });
   }
 
   return (
@@ -112,7 +118,7 @@ export function AddressField({
             >
               <Icon name="pin" size={15} color={T.txt3} />
               <Text style={{ flex: 1, fontFamily: FONT.m, fontSize: 13, color: T.txt2 }} numberOfLines={2}>
-                {s.label}
+                {shortAddress(s.label, 3)}
               </Text>
             </Pressable>
           ))}

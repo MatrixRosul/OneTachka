@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text } from 'react-native';
 import { T, FONT } from '../theme';
 import type { Place } from './AddressField';
+import { shortAddress } from '../cities';
 
 // react-native-web renders via react-dom, so a lowercase host tag renders a real DOM node.
 const IFrame: any = 'iframe';
@@ -29,7 +30,7 @@ async function reverse(lat: number, lng: number): Promise<string> {
       `https://nominatim.openstreetmap.org/reverse?format=json&accept-language=uk&lat=${lat}&lon=${lng}`,
     );
     const d = (await res.json()) as { display_name?: string };
-    return d.display_name ?? `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    return d.display_name ? shortAddress(d.display_name, 2) : `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   } catch {
     return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   }

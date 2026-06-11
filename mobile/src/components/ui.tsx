@@ -294,6 +294,68 @@ export function ErrorText({ children }: { children?: string }) {
   );
 }
 
+export function StatCards({ items }: { items: [string, string][] }) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+      {items.map(([v, l], i) => (
+        <View key={i} style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: T.border, borderRadius: 16, paddingVertical: 14, alignItems: 'center' }}>
+          <Text style={{ fontFamily: FONT.xb, fontSize: 18, color: T.ink, letterSpacing: -0.4 }}>{v}</Text>
+          <Text style={{ fontFamily: FONT.m, fontSize: 11.5, color: T.txt3, marginTop: 2 }}>{l}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export function Row({
+  icon,
+  title,
+  detail,
+  accent,
+  onPress,
+  last,
+  chevron = true,
+}: {
+  icon: IconName;
+  title: string;
+  detail?: string;
+  accent?: string;
+  onPress?: () => void;
+  last?: boolean;
+  chevron?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 13,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderBottomWidth: last ? 0 : 1,
+        borderBottomColor: T.line,
+      }}
+    >
+      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name={icon} size={19} color={accent ?? T.ink} />
+      </View>
+      <Text style={{ flex: 1, fontFamily: FONT.b, fontSize: 14.5, color: accent ?? T.ink }}>{title}</Text>
+      {detail ? <Text style={{ fontFamily: FONT.sb, fontSize: 13, color: accent ?? T.txt3 }}>{detail}</Text> : null}
+      {onPress && chevron ? <Icon name="chevR" size={17} color={T.txt3} /> : null}
+    </Pressable>
+  );
+}
+
+// ListCard = Card without padding (rows draw their own).
+export function ListCard({ children }: { children: React.ReactNode }) {
+  return (
+    <View style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: T.border, borderRadius: T.radCard, overflow: 'hidden', marginBottom: 16 }}>
+      {children}
+    </View>
+  );
+}
+
 export function ScreenHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
     <View style={styles.header}>
