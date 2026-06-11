@@ -6,6 +6,7 @@ import { Screen } from '../../components/Screen';
 import { ScreenHeader, PrimaryBtn, Segmented, ReviewedBadge } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { OrderCard } from '../../components/OrderCard';
+import { HistoryItem } from '../../components/HistoryItem';
 import { ReviewForm } from '../../components/ReviewForm';
 import { api, errText } from '../../api';
 import type { Order, OrderStatus } from '../../types';
@@ -78,16 +79,21 @@ export function ClientOrdersScreen() {
 
       {shown.length === 0 && <Empty text={tab === 'active' ? 'Немає активних замовлень' : 'Історія порожня'} />}
 
-      {shown.map((o) => (
-        <OrderCard key={o.id} order={o}>
-          {(o.status === 'SEARCHING' || o.status === 'ACCEPTED') && (
-            <PrimaryBtn color={T.surface} txt={T.ink} onPress={() => cancel(o.id)} style={{ borderWidth: 1.5, borderColor: T.border, height: 46 }}>
-              Скасувати
-            </PrimaryBtn>
-          )}
-          {o.status === 'COMPLETED' && o.driverId && (o.reviewedByMe ? <ReviewedBadge /> : <ReviewForm orderId={o.id} />)}
-        </OrderCard>
-      ))}
+      {tab === 'active'
+        ? shown.map((o) => (
+            <OrderCard key={o.id} order={o}>
+              {(o.status === 'SEARCHING' || o.status === 'ACCEPTED') && (
+                <PrimaryBtn color={T.surface} txt={T.ink} onPress={() => cancel(o.id)} style={{ borderWidth: 1.5, borderColor: T.border, height: 46 }}>
+                  Скасувати
+                </PrimaryBtn>
+              )}
+            </OrderCard>
+          ))
+        : shown.map((o) => (
+            <HistoryItem key={o.id} order={o}>
+              {o.status === 'COMPLETED' && o.driverId ? (o.reviewedByMe ? <ReviewedBadge /> : <ReviewForm orderId={o.id} />) : null}
+            </HistoryItem>
+          ))}
     </Screen>
   );
 }
