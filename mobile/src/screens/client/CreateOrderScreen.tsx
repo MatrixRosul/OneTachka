@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, TextInput, Pressable, Alert } from 'react-native';
 import { T, FONT, VEHICLE_LABEL } from '../../theme';
 import { Screen } from '../../components/Screen';
 import { Card, PrimaryBtn, SectionTitle, ErrorText, Toggle, Stepper } from '../../components/ui';
@@ -57,6 +57,7 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
   const [box, setBox] = useState({ l: 80, w: 60, h: 80, qty: 1 });
   const [weight, setWeight] = useState(500); // kg
   const [oversized, setOversized] = useState(false);
+  const [price, setPrice] = useState(700); // грн — клієнт вводить сам
 
   const [showMap, setShowMap] = useState(false);
   const [mapTarget, setMapTarget] = useState<'pickup' | 'dropoff'>('pickup');
@@ -95,8 +96,10 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
         weightKg: Math.max(1, Math.round(weight)),
         vehicleType: veh.v,
         description: `≈${volume.toFixed(1)} м³${oversized ? ' · негабарит' : ''}`,
+        price: price > 0 ? price : undefined,
       });
-      navigation.navigate('Замовлення');
+      // Повертаємось зі стека на таби й одразу на вкладку «Замовлення».
+      navigation.navigate('Tabs', { screen: 'Замовлення' });
     } catch (ex) {
       setErr(errText(ex));
     } finally {
@@ -244,6 +247,37 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
           </Text>
         </View>
       </Card>
+
+      {/* price — entered by client; AI suggestion is future */}
+      <SectionTitle>Ціна</SectionTitle>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flex: 1 }}>
+          <NumBox value={price} onChange={setPrice} suffix="₴" />
+        </View>
+        <Pressable
+          onPress={() =>
+            Alert.alert('AI-підбір ціни', 'Зʼявиться згодом — рахуватиме ціну за маршрутом, попитом і паливом.')
+          }
+          style={{
+            height: 48,
+            paddingHorizontal: 16,
+            borderRadius: 12,
+            borderWidth: 1.5,
+            borderColor: T.border,
+            backgroundColor: '#fff',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            opacity: 0.75,
+          }}
+        >
+          <Icon name="spark" size={16} color={T.accentDark} />
+          <Text style={{ fontFamily: FONT.b, fontSize: 13, color: T.txt2 }}>AI</Text>
+        </Pressable>
+      </View>
+      <Text style={{ fontFamily: FONT.r, fontSize: 11.5, color: T.txt3, marginTop: 6, marginBottom: 8 }}>
+        Вкажіть ціну в гривнях. AI-підбір зʼявиться згодом.
+      </Text>
 
       <ErrorText>{err}</ErrorText>
       <PrimaryBtn icon="arrow" onPress={submit} disabled={busy}>
