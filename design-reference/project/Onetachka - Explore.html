@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Onetachka — Explore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: 'Manrope', system-ui, sans-serif; }
+  .ds-swatch { border-radius: 12px; height: 64px; display: flex; align-items: flex-end; padding: 8px; }
+  .ds-label { font-size: 11px; font-weight: 700; }
+  .ds-mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: .6; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ui.jsx"></script>
+<script type="text/babel" src="home-variants.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Frame({ children }) {
+  // shrink the 402x874 device to fit artboards nicely
+  return (
+    <div style={{ transform: 'scale(0.74)', transformOrigin: 'top left', width: 402, height: 874 }}>
+      <IOSDevice>{children}</IOSDevice>
+    </div>
+  );
+}
+
+// ── Design system reference panel ──────────────────────────
+function DSPanel() {
+  const swatch = (bg, name, hex, dark) => (
+    <div className="ds-swatch" style={{ background: bg, color: dark ? '#fff' : T.ink, border: `1px solid ${T.border}` }}>
+      <div>
+        <div className="ds-label">{name}</div>
+        <div className="ds-mono" style={{ color: dark ? 'rgba(255,255,255,.6)' : undefined }}>{hex}</div>
+      </div>
+    </div>
+  );
+  return (
+    <div style={{ width: 720, background: '#fff', border: `1px solid ${T.border}`, borderRadius: 20, padding: 28, fontFamily: T.font }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+        <Logo size={22}/>
+      </div>
+      <div style={{ fontSize: 13, color: T.txt2, marginBottom: 22 }}>Платформа вантажних перевезень · «Uber для вантажів» · Україна 🇺🇦</div>
+
+      <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: T.txt3, marginBottom: 10 }}>Кольори</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 10, marginBottom: 24 }}>
+        {swatch(T.ink, 'Ink', '#14161F', true)}
+        {swatch(T.accent, 'Accent', '#F2C84B')}
+        {swatch(T.bg, 'BG', '#F5F5F1')}
+        {swatch(T.green, 'Success', '#1FA86A', true)}
+        {swatch(T.txt2, 'Text-2', '#6C6F78', true)}
+        {swatch(T.border, 'Border', '#EAE9E4')}
+      </div>
+
+      <div style={{ display: 'flex', gap: 40 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: T.txt3, marginBottom: 10 }}>Типографіка · Manrope</div>
+          <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: -1 }}>1 250 ₴</div>
+          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>Заголовок екрана</div>
+          <div style={{ fontSize: 15, fontWeight: 600 }}>Основний текст — Regular / SemiBold</div>
+          <div style={{ fontSize: 12.5, color: T.txt2 }}>Допоміжний / підпис</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: T.txt3, marginBottom: 10 }}>Типи вантажу</div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ textAlign: 'center' }}><Truck size="s" w={50}/><div style={{ fontSize: 11, fontWeight: 700, marginTop: 4 }}>Малий</div></div>
+            <div style={{ textAlign: 'center' }}><Truck size="m" w={50}/><div style={{ fontSize: 11, fontWeight: 700, marginTop: 4 }}>Середній</div></div>
+            <div style={{ textAlign: 'center' }}><Truck size="l" w={50}/><div style={{ fontSize: 11, fontWeight: 700, marginTop: 4 }}>Великий</div></div>
+          </div>
+          <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+            <div style={{ background: T.accent, color: T.ink, fontWeight: 800, fontSize: 13, padding: '10px 16px', borderRadius: 12 }}>Primary</div>
+            <div style={{ background: T.ink, color: '#fff', fontWeight: 800, fontSize: 13, padding: '10px 16px', borderRadius: 12 }}>Dark</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="ds" title="Onetachka · Дизайн-система" subtitle="Ink + жовтий акцент · Manrope · мінімалізм рівня Uber/Bolt">
+        <DCArtboard id="tokens" label="Tokens & Brand" width={780} height={420}>
+          <div style={{ padding: 30, background: T.bg, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <DSPanel/>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="home" title="Головний екран клієнта · 3 напрями" subtitle="Оберіть напрям — далі розгорну його в повний клікабельний прототип">
+        <DCArtboard id="A" label="A · Map-first (Uber/Bolt)" width={320} height={660}>
+          <Frame><HomeMap/></Frame>
+        </DCArtboard>
+        <DCArtboard id="B" label="B · Action-first (теплі картки)" width={320} height={660}>
+          <Frame><HomeAction/></Frame>
+        </DCArtboard>
+        <DCArtboard id="C" label="C · Dashboard (AI-прайсинг, типографіка)" width={320} height={660}>
+          <Frame><HomeDash/></Frame>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
