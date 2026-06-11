@@ -182,6 +182,40 @@ export function StarPicker({ value, onChange }: { value: number; onChange: (n: n
   );
 }
 
+export function Segmented({
+  tabs,
+  value,
+  onChange,
+}: {
+  tabs: [string, string][];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 4, backgroundColor: '#EDECE6', borderRadius: 14, padding: 4, marginBottom: 16 }}>
+      {tabs.map(([k, l]) => {
+        const on = value === k;
+        return (
+          <Pressable
+            key={k}
+            onPress={() => onChange(k)}
+            style={{
+              flex: 1,
+              height: 38,
+              borderRadius: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: on ? '#fff' : 'transparent',
+            }}
+          >
+            <Text style={{ fontFamily: FONT.b, fontSize: 13.5, color: on ? T.ink : T.txt2 }}>{l}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 export function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
   return (
     <Pressable

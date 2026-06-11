@@ -1,17 +1,32 @@
 import React, { useCallback, useState } from 'react';
-import { Text, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT } from '../../theme';
 import { Screen } from '../../components/Screen';
-import { ScreenHeader, PrimaryBtn } from '../../components/ui';
+import { ScreenHeader, PrimaryBtn, Segmented } from '../../components/ui';
+import { Icon } from '../../components/Icon';
 import { OrderCard } from '../../components/OrderCard';
 import { ReviewForm } from '../../components/ReviewForm';
 import { PriceEditor } from '../../components/PriceEditor';
 import { api, errText } from '../../api';
 import type { Order, OrderStatus } from '../../types';
 
+const ACTIVE: OrderStatus[] = ['ACCEPTED', 'IN_PROGRESS'];
+
+function Empty({ text }: { text: string }) {
+  return (
+    <View style={{ alignItems: 'center', paddingVertical: 48 }}>
+      <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#fff', borderWidth: 1, borderColor: T.border, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+        <Icon name="box" size={28} color={T.txt3} />
+      </View>
+      <Text style={{ fontFamily: FONT.b, fontSize: 15, color: T.txt2 }}>{text}</Text>
+    </View>
+  );
+}
+
 export function DriverOrdersScreen() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [tab, setTab] = useState('active');
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
@@ -40,6 +55,10 @@ export function DriverOrdersScreen() {
     }
   }
 
+  const active = orders.filter((o) => ACTIVE.includes(o.status));
+  const history = orders.filter((o) => !ACTIVE.includes(o.status));
+  const shown = tab === 'active' ? active : history;
+
   return (
     <Screen
       refreshing={refreshing}
@@ -49,11 +68,19 @@ export function DriverOrdersScreen() {
         setRefreshing(false);
       }}
     >
-      <ScreenHeader title="Мої замовлення" />
-      {orders.length === 0 && (
-        <Text style={{ fontFamily: FONT.m, fontSize: 13.5, color: T.txt3 }}>Поки немає прийнятих замовлень.</Text>
-      )}
-      {orders.map((o) => (
+      <ScreenHeader title="Замовлення" />
+      <Segmented
+        tabs={[
+          ['active', `Активні${active.length ? ` (${active.length})` : ''}`],
+          ['history', 'Історія'],
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+
+      {shown.length === 0 && <Empty text={tab === 'active' ? 'Немає активних замовлень' : 'Історія порожня'} />}
+
+      {shown.map((o) => (
         <OrderCard key={o.id} order={o}>
           {(o.status === 'ACCEPTED' || o.status === 'IN_PROGRESS') && (
             <PriceEditor order={o} onChanged={load} />
