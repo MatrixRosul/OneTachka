@@ -144,8 +144,8 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
     <Screen>
       {/* addresses — autocomplete (OSM), biased to the city chosen on Home */}
       <Card style={{ paddingVertical: 4 }}>
-        <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} near={city.name} divider />
-        <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} near={city.name} />
+        <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} bias={{ lat: city.lat, lng: city.lng }} divider />
+        <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} bias={{ lat: city.lat, lng: city.lng }} />
       </Card>
 
       {/* map picker */}

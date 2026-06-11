@@ -16,18 +16,28 @@ interface Suggestion {
   lng: number;
 }
 
-// Автодоповнення адрес через OpenStreetMap Nominatim (без ключа, по Україні).
-async function search(q: string, near?: string): Promise<Suggestion[]> {
-  // Прив'язуємо до обраного міста, якщо його ще немає в запиті.
-  const query = near && !q.toLowerCase().includes(near.toLowerCase()) ? `${q}, ${near}` : q;
-  const url =
-    'https://nominatim.openstreetmap.org/search?format=json&addressdetails=0&limit=5' +
+export interface Bias {
+  lat: number;
+  lng: number;
+}
+
+// Автодоповнення адрес через OpenStreetMap Nominatim.
+// Місто передається як viewbox-bias (м'яка підказка): результати поблизу
+// ранжуються вище, але адреси будь-де в Україні теж повертаються
+// (без bounded=1, тобто це не фільтр). Місто НЕ дописується в текст запиту.
+async function search(q: string, bias: Bias | undefined, signal: AbortSignal): Promise<Suggestion[]> {
+  let url =
+    'https://nominatim.openstreetmap.org/search?format=json&addressdetails=0&limit=8' +
     '&accept-language=uk&countrycodes=ua&q=' +
-    encodeURIComponent(query);
+    encodeURIComponent(q);
+  if (bias) {
+    const d = 0.6; // ~60 км навколо міста — лише пріоритет ранжування
+    url += `&viewbox=${bias.lng - d},${bias.lat - d},${bias.lng + d},${bias.lat + d}`;
+  }
   const headers: Record<string, string> = {};
   // Браузер не дає виставляти User-Agent; на нативі — додаємо (вимога Nominatim).
   if (Platform.OS !== 'web') headers['User-Agent'] = 'OnetachkaApp/1.0 (mvp)';
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, { headers, signal });
   if (!res.ok) return [];
   const data = (await res.json()) as Array<{ display_name: string; lat: string; lon: string }>;
   return data.map((d) => ({ label: d.display_name, lat: Number(d.lat), lng: Number(d.lon) }));
@@ -39,7 +49,7 @@ export function AddressField({
   label,
   value,
   onSelect,
-  near,
+  bias,
   divider,
 }: {
   icon: IconName;
@@ -47,7 +57,7 @@ export function AddressField({
   label: string;
   value: string;
   onSelect: (p: Place) => void;
-  near?: string;
+  bias?: Bias;
   divider?: boolean;
 }) {
   const [text, setText] = useState(value);
@@ -70,17 +80,21 @@ export function AddressField({
       return;
     }
     setLoading(true);
+    const ctrl = new AbortController();
     const t = setTimeout(async () => {
       try {
-        setItems(await search(text.trim(), near));
+        setItems(await search(text.trim(), bias, ctrl.signal));
       } catch {
-        setItems([]);
+        // aborted (новий ввід) або помилка — ігноруємо
       } finally {
         setLoading(false);
       }
-    }, 500);
-    return () => clearTimeout(t);
-  }, [text, focused, near]);
+    }, 400);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
+  }, [text, focused, bias?.lat, bias?.lng]);
 
   function choose(s: Suggestion) {
     const addr = shortAddress(s.label, 2);
