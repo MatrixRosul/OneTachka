@@ -84,6 +84,36 @@ export function HomeScreen({ navigation }: { navigation: any }) {
       ) : (
         active.map((o) => <OrderCard key={o.id} order={o} />)
       )}
+
+      {orders.length > 0 && (
+        <>
+          <Text style={{ fontFamily: FONT.b, fontSize: 14, color: T.txt2, marginTop: 18, marginBottom: 4 }}>
+            Нещодавні маршрути
+          </Text>
+          <Card style={{ padding: 0 }}>
+            {orders.slice(0, 4).map((o, i) => (
+              <Pressable
+                key={o.id}
+                onPress={() => navigation.navigate('Створити')}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderBottomWidth: i < Math.min(orders.length, 4) - 1 ? 1 : 0, borderBottomColor: T.line }}
+              >
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="clock" size={17} color={T.txt2} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: FONT.b, fontSize: 13.5, color: T.ink }} numberOfLines={1}>
+                    {o.pickupAddress} → {o.dropoffAddress}
+                  </Text>
+                  <Text style={{ fontFamily: FONT.m, fontSize: 11.5, color: T.txt3 }} numberOfLines={1}>
+                    {new Date(o.createdAt).toLocaleDateString('uk')}{o.price ? ` · ${o.price} ₴` : ''}
+                  </Text>
+                </View>
+                <Icon name="arrow" size={16} color={T.txt3} />
+              </Pressable>
+            ))}
+          </Card>
+        </>
+      )}
     </Screen>
   );
 }

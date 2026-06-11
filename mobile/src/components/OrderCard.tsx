@@ -54,6 +54,13 @@ export function OrderCard({ order, children }: { order: Order; children?: React.
         </Text>
       ) : null}
 
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
+        <Icon name="clock" size={13} color={order.scheduledAt ? T.accentDark : T.txt3} />
+        <Text style={{ fontFamily: FONT.sb, fontSize: 12.5, color: order.scheduledAt ? T.ink : T.txt3 }}>
+          {order.scheduledAt ? `Подати: ${fmt(order.scheduledAt)}` : 'Подати: зараз'}
+        </Text>
+      </View>
+
       <Text style={{ fontFamily: FONT.m, fontSize: 11.5, color: T.txt3, marginTop: 8 }}>
         Створено: {fmt(order.createdAt)}
         {order.completedAt ? ` · Завершено: ${fmt(order.completedAt)}` : ''}

@@ -78,6 +78,7 @@ export interface OrderCreateBody {
   vehicleType: VehicleType;
   description?: string;
   price?: number;
+  scheduledAt?: string;
 }
 
 export const api = {

@@ -43,6 +43,7 @@ export interface Order {
   vehicleType: VehicleType;
   description: string | null;
   price: string | null;
+  scheduledAt: string | null;
   createdAt: string;
   acceptedAt: string | null;
   completedAt: string | null;

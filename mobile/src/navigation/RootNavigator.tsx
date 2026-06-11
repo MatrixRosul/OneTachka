@@ -9,6 +9,7 @@ import { Icon, IconName } from '../components/Icon';
 import { useAuth } from '../AuthContext';
 import { AuthScreen } from '../screens/AuthScreen';
 import { ChatScreen } from '../screens/ChatScreen';
+import { StubScreen } from '../screens/StubScreen';
 import { HomeScreen } from '../screens/client/HomeScreen';
 import { CreateOrderScreen } from '../screens/client/CreateOrderScreen';
 import { ClientOrdersScreen } from '../screens/client/OrdersScreen';
@@ -87,6 +88,7 @@ function ClientRoot() {
     <Stack.Navigator screenOptions={stackScreenOptions}>
       <Stack.Screen name="Tabs" component={ClientTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Створити" component={CreateOrderScreen} options={{ title: 'Нова заявка' }} />
+      <Stack.Screen name="Розділ" component={StubScreen} options={({ route }: any) => ({ title: route.params?.title ?? 'Розділ' })} />
     </Stack.Navigator>
   );
 }
@@ -97,6 +99,7 @@ function DriverRoot() {
       <Stack.Screen name="Tabs" component={DriverTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Доступні" component={AvailableScreen} options={{ title: 'Доступні заявки' }} />
       <Stack.Screen name="Заробіток" component={EarningsScreen} options={{ title: 'Заробіток' }} />
+      <Stack.Screen name="Розділ" component={StubScreen} options={({ route }: any) => ({ title: route.params?.title ?? 'Розділ' })} />
     </Stack.Navigator>
   );
 }

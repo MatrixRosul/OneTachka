@@ -82,6 +82,8 @@ class Order(SQLModel, table=True):
     description: Optional[str] = None
     price: Optional[Decimal] = None     # ціну вводить клієнт вручну (MVP)
 
+    scheduled_at: Optional[datetime] = None  # None = подати зараз; інакше — заплановано
+
     created_at: datetime = Field(default_factory=utcnow)
     accepted_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None

@@ -6,6 +6,7 @@ import { Card, PrimaryBtn, SectionTitle, ErrorText, Toggle, Stepper } from '../.
 import { Icon, Truck } from '../../components/Icon';
 import { AddressField, type Place } from '../../components/AddressField';
 import { MapPicker } from '../../components/MapPicker';
+import { DateTimeField } from '../../components/DateTimeField';
 import { CITIES, type City } from '../../cities';
 import { api, errText } from '../../api';
 import type { VehicleType } from '../../types';
@@ -66,6 +67,8 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
   const [weight, setWeight] = useState(500); // kg
   const [oversized, setOversized] = useState(false);
   const [price, setPrice] = useState(700); // грн — клієнт вводить сам
+  const [when, setWhen] = useState<'now' | 'scheduled'>('now');
+  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
 
   const [showMap, setShowMap] = useState(false);
   const [mapTarget, setMapTarget] = useState<'pickup' | 'dropoff'>('pickup');
@@ -105,6 +108,7 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
         vehicleType: veh.v,
         description: `≈${volume.toFixed(1)} м³${oversized ? ' · негабарит' : ''}`,
         price: price > 0 ? price : undefined,
+        scheduledAt: when === 'scheduled' && scheduledAt ? scheduledAt : undefined,
       });
       // Повертаємось зі стека на таби й одразу на вкладку «Замовлення».
       navigation.navigate('Tabs', { screen: 'Замовлення' });
@@ -272,6 +276,26 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
           </Text>
         </View>
       </Card>
+
+      {/* when */}
+      <SectionTitle>Коли подати транспорт</SectionTitle>
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+        {(['now', 'scheduled'] as const).map((k) => {
+          const on = when === k;
+          return (
+            <Pressable
+              key={k}
+              onPress={() => setWhen(k)}
+              style={{ flex: 1, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? T.ink : '#fff', borderWidth: 1.5, borderColor: on ? T.ink : T.border }}
+            >
+              <Text style={{ fontFamily: FONT.b, fontSize: 14, color: on ? '#fff' : T.txt }}>
+                {k === 'now' ? 'Зараз' : 'Запланувати'}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      {when === 'scheduled' && <DateTimeField value={scheduledAt} onChange={setScheduledAt} />}
 
       {/* price — entered by client; AI suggestion is future */}
       <SectionTitle>Ціна</SectionTitle>

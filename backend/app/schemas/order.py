@@ -24,6 +24,7 @@ class OrderCreate(CamelModel):
     vehicle_type: VehicleType
     description: Optional[str] = Field(default=None, max_length=1000)
     price: Optional[Decimal] = Field(default=None, gt=0, max_digits=10, decimal_places=2)
+    scheduled_at: Optional[datetime] = None  # None = зараз
 
 
 class OrderPublic(CamelModel):
@@ -44,6 +45,7 @@ class OrderPublic(CamelModel):
     vehicle_type: VehicleType
     description: Optional[str] = None
     price: Optional[Decimal] = None
+    scheduled_at: Optional[datetime] = None
 
     created_at: datetime
     accepted_at: Optional[datetime] = None

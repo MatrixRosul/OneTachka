@@ -3,11 +3,11 @@ import { View, Text } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT } from '../theme';
 import { Screen } from '../components/Screen';
-import { Avatar, StatCards, ListCard, Row, ScreenHeader } from '../components/ui';
+import { Avatar, StatCards, ListCard, Row, ScreenHeader, SectionTitle } from '../components/ui';
 import { useAuth } from '../AuthContext';
 import { api } from '../api';
 
-export function ProfileScreen() {
+export function ProfileScreen({ navigation }: { navigation: any }) {
   const { me, logout } = useAuth();
   const [count, setCount] = useState(0);
 
@@ -18,6 +18,7 @@ export function ProfileScreen() {
   );
 
   if (!me) return null;
+  const stub = (title: string) => navigation.navigate('Розділ', { title });
 
   return (
     <Screen>
@@ -40,6 +41,25 @@ export function ProfileScreen() {
       />
 
       <ListCard>
+        <Row icon="box" title="Способи оплати" onPress={() => stub('Способи оплати')} />
+        <Row icon="pin" title="Збережені адреси" onPress={() => stub('Збережені адреси')} />
+        <Row icon="spark" title="Промокоди" onPress={() => stub('Промокоди')} last />
+      </ListCard>
+
+      <SectionTitle>Безпека</SectionTitle>
+      <ListCard>
+        <Row icon="shield" title="Верифікація" onPress={() => stub('Верифікація')} />
+        <Row icon="user" title="Особисті дані" onPress={() => stub('Особисті дані')} last />
+      </ListCard>
+
+      <SectionTitle>Бізнес</SectionTitle>
+      <ListCard>
+        <Row icon="box" title="Onetachka для бізнесу" detail="B2B" accent={T.accentDark} onPress={() => stub('Onetachka для бізнесу')} last />
+      </ListCard>
+
+      <ListCard>
+        <Row icon="chat" title="Підтримка" onPress={() => stub('Підтримка')} />
+        <Row icon="menu" title="Налаштування" onPress={() => stub('Налаштування')} />
         <Row icon="arrow" title="Вийти" accent={T.red} chevron={false} last onPress={logout} />
       </ListCard>
     </Screen>

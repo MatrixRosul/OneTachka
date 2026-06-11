@@ -82,6 +82,10 @@ export function DriverProfileScreen({ navigation }: { navigation: any }) {
 
       <ListCard>
         <Row icon="box" title="Заробіток і виплати" detail={`${earned.toLocaleString('uk-UA')} ₴`} onPress={() => navigation.navigate('Заробіток')} />
+        <Row icon="shield" title="Документи" detail="верифікація" onPress={() => navigation.navigate('Розділ', { title: 'Документи' })} />
+        <Row icon="star" title="Premium" accent={T.accentDark} onPress={() => navigation.navigate('Розділ', { title: 'Onetachka Premium' })} />
+        <Row icon="chat" title="Підтримка" onPress={() => navigation.navigate('Розділ', { title: 'Підтримка' })} />
+        <Row icon="menu" title="Налаштування" onPress={() => navigation.navigate('Розділ', { title: 'Налаштування' })} />
         <Row icon="arrow" title="Вийти" accent={T.red} chevron={false} last onPress={logout} />
       </ListCard>
     </Screen>
