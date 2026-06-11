@@ -26,6 +26,15 @@ function pickVehicle(weight: number, volume: number, oversized: boolean): {
   return { v: 'TRUCK_LARGE', name: 'Вантажівка 10 тонн', sub: 'до 10 т · 45 м³', size: 'l' };
 }
 
+// Дописуємо номер будинку до вулиці: "вулиця X, 12, Місто".
+function withHouse(p: Place, house: string): string {
+  const h = house.trim();
+  if (!h) return p.address;
+  const parts = p.address.split(',').map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0]}, ${h}, ${parts.slice(1).join(', ')}`;
+  return `${p.address}, ${h}`;
+}
+
 function NumBox({ value, onChange, suffix, label, width }: {
   value: number;
   onChange: (n: number) => void;
@@ -53,10 +62,13 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
   const { city } = useCity();
   const [pickup, setPickup] = useState<Place>({ address: city.name, lat: city.lat, lng: city.lng });
   const [dropoff, setDropoff] = useState<Place>({ address: '', lat: city.lat, lng: city.lng });
+  const [pickupHouse, setPickupHouse] = useState('');
+  const [dropoffHouse, setDropoffHouse] = useState('');
 
   // Місто (з Головної) задає старт точки «Звідки».
   useEffect(() => {
     setPickup({ address: city.name, lat: city.lat, lng: city.lng });
+    setPickupHouse('');
   }, [city]);
 
   const [mode, setMode] = useState<Mode>('euro');
@@ -89,17 +101,19 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
 
   async function submit() {
     setErr('');
-    if (pickup.address.trim().length < 3 || dropoff.address.trim().length < 3) {
+    const pickupAddr = withHouse(pickup, pickupHouse);
+    const dropoffAddr = withHouse(dropoff, dropoffHouse);
+    if (pickupAddr.trim().length < 3 || dropoffAddr.trim().length < 3) {
       setErr('Вкажіть адреси «звідки» та «куди»');
       return;
     }
     setBusy(true);
     try {
       await api.createOrder({
-        pickupAddress: pickup.address.trim(),
+        pickupAddress: pickupAddr.trim(),
         pickupLat: pickup.lat,
         pickupLng: pickup.lng,
-        dropoffAddress: dropoff.address.trim(),
+        dropoffAddress: dropoffAddr.trim(),
         dropoffLat: dropoff.lat,
         dropoffLng: dropoff.lng,
         cargoType: sizeLabel.slice(0, 120),
@@ -144,8 +158,8 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
     <Screen>
       {/* addresses — autocomplete (OSM), biased to the city chosen on Home */}
       <Card style={{ paddingVertical: 4 }}>
-        <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} bias={{ lat: city.lat, lng: city.lng }} divider />
-        <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} bias={{ lat: city.lat, lng: city.lng }} />
+        <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} bias={{ lat: city.lat, lng: city.lng }} house={pickupHouse} onHouse={setPickupHouse} divider />
+        <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} bias={{ lat: city.lat, lng: city.lng }} house={dropoffHouse} onHouse={setDropoffHouse} />
       </Card>
 
       {/* map picker */}

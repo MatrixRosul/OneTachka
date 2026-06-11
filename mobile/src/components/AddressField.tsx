@@ -50,6 +50,8 @@ export function AddressField({
   value,
   onSelect,
   bias,
+  house,
+  onHouse,
   divider,
 }: {
   icon: IconName;
@@ -58,6 +60,8 @@ export function AddressField({
   value: string;
   onSelect: (p: Place) => void;
   bias?: Bias;
+  house?: string;
+  onHouse?: (v: string) => void;
   divider?: boolean;
 }) {
   const [text, setText] = useState(value);
@@ -114,12 +118,24 @@ export function AddressField({
             value={text}
             onChangeText={setText}
             onFocus={() => setFocused(true)}
-            placeholder="Почніть вводити адресу…"
+            placeholder="Вулиця, місто…"
             placeholderTextColor={T.txt3}
             style={{ fontFamily: FONT.b, fontSize: 14.5, color: T.ink, padding: 0, marginTop: 1 }}
           />
         </View>
         {loading && <ActivityIndicator size="small" color={T.txt3} />}
+        {onHouse && (
+          <View style={{ width: 62 }}>
+            <Text style={{ fontFamily: FONT.sb, fontSize: 11, color: T.txt3 }}>Буд.</Text>
+            <TextInput
+              value={house ?? ''}
+              onChangeText={onHouse}
+              placeholder="№"
+              placeholderTextColor={T.txt3}
+              style={{ fontFamily: FONT.b, fontSize: 14.5, color: T.ink, padding: 0, marginTop: 1, borderBottomWidth: 1, borderBottomColor: T.border }}
+            />
+          </View>
+        )}
       </View>
 
       {items.length > 0 && (
