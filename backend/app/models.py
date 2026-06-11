@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, List
 
+from sqlalchemy import UniqueConstraint
 from sqlmodel import SQLModel, Field, Relationship
 
 
@@ -89,6 +90,11 @@ class Order(SQLModel, table=True):
 
 
 class Review(SQLModel, table=True):
+    # Один відгук від автора на замовлення (ціль виводиться з учасників).
+    __table_args__ = (
+        UniqueConstraint("order_id", "from_user_id", name="uq_review_order_author"),
+    )
+
     id: str = Field(default_factory=new_id, primary_key=True)
     order_id: str = Field(foreign_key="order.id", index=True)
     from_user_id: str = Field(foreign_key="user.id")
