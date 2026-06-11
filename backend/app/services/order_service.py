@@ -3,12 +3,13 @@
 Фаза 3 — створення/перегляд; Фаза 4 — матчинг/прийняття;
 Фаза 5 — життєвий цикл (status/cancel) зі стан-машиною (план, Частина 6).
 """
+from decimal import Decimal
 from typing import List
 
 from sqlmodel import Session, select
 
 from app.errors import conflict, forbidden, not_found
-from app.models import DriverProfile, Order, OrderStatus, Role, User, utcnow
+from app.models import DriverProfile, Order, OrderStatus, Role, User, VehicleType, utcnow
 from app.schemas.order import OrderCreate
 
 # Дозволені переходи "вперед", які робить призначений водій:
@@ -21,9 +22,23 @@ _REQUIRED_CURRENT = {
 # З яких статусів можна скасувати (решта — заборонено).
 _CANCELLABLE = {OrderStatus.SEARCHING, OrderStatus.ACCEPTED}
 
+# Базова (константна) ціна за типом авто — поки без розрахунку.
+_BASE_PRICE = {
+    VehicleType.CAR: Decimal("400"),
+    VehicleType.VAN: Decimal("700"),
+    VehicleType.TRUCK_SMALL: Decimal("1200"),
+    VehicleType.TRUCK_LARGE: Decimal("1800"),
+}
+
+# Водій може коригувати ціну поки замовлення активне.
+_PRICE_EDITABLE = {OrderStatus.ACCEPTED, OrderStatus.IN_PROGRESS}
+
 
 def create_order(session: Session, client: User, data: OrderCreate) -> Order:
-    order = Order(client_id=client.id, **data.model_dump())
+    payload = data.model_dump()
+    if payload.get("price") is None:
+        payload["price"] = _BASE_PRICE[data.vehicle_type]
+    order = Order(client_id=client.id, **payload)
     session.add(order)
     session.commit()
     session.refresh(order)
@@ -159,6 +174,23 @@ def cancel_order(session: Session, user: User, order_id: str) -> Order:
         raise forbidden("You are not allowed to cancel this order")
 
     order.status = OrderStatus.CANCELLED
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+    return order
+
+
+def set_price(session: Session, driver: User, order_id: str, price: Decimal) -> Order:
+    """Призначений водій коригує ціну поки замовлення активне (ACCEPTED/IN_PROGRESS)."""
+    order = _get_locked_order(session, order_id)
+    if order.driver_id != driver.id:
+        raise forbidden("Only the assigned driver can change the price")
+    if order.status not in _PRICE_EDITABLE:
+        raise conflict(
+            f"Price cannot be changed from {order.status.value}",
+            code="price_not_editable",
+        )
+    order.price = price
     session.add(order)
     session.commit()
     session.refresh(order)

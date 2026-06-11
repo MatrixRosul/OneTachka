@@ -59,3 +59,7 @@ class OrderStatusUpdate(CamelModel):
         if v not in _STATUS_TARGETS:
             raise ValueError("status must be IN_PROGRESS or COMPLETED")
         return v
+
+
+class OrderPriceUpdate(CamelModel):
+    price: Decimal = Field(gt=0, max_digits=10, decimal_places=2)

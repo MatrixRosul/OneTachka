@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, status
 
 from app.deps import ClientUser, CurrentUser, DriverUser, SessionDep
-from app.schemas.order import OrderCreate, OrderPublic, OrderStatusUpdate
+from app.schemas.order import OrderCreate, OrderPublic, OrderPriceUpdate, OrderStatusUpdate
 from app.services import order_service
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -52,4 +52,12 @@ def update_status(
 @router.post("/{order_id}/cancel", response_model=OrderPublic)
 def cancel_order(order_id: str, user: CurrentUser, session: SessionDep) -> OrderPublic:
     order = order_service.cancel_order(session, user, order_id)
+    return OrderPublic.model_validate(order)
+
+
+@router.post("/{order_id}/price", response_model=OrderPublic)
+def set_price(
+    order_id: str, data: OrderPriceUpdate, user: DriverUser, session: SessionDep
+) -> OrderPublic:
+    order = order_service.set_price(session, user, order_id, data.price)
     return OrderPublic.model_validate(order)
