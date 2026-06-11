@@ -182,6 +182,75 @@ export function StarPicker({ value, onChange }: { value: number; onChange: (n: n
   );
 }
 
+export function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        width: 46,
+        height: 27,
+        borderRadius: 999,
+        backgroundColor: on ? T.green : '#E2E1DB',
+        padding: 3,
+        justifyContent: 'center',
+      }}
+    >
+      <View
+        style={{
+          width: 21,
+          height: 21,
+          borderRadius: 11,
+          backgroundColor: '#fff',
+          alignSelf: on ? 'flex-end' : 'flex-start',
+        }}
+      />
+    </Pressable>
+  );
+}
+
+export function Stepper({
+  value,
+  onChange,
+  min = 1,
+  max = 99,
+  step = 1,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+}) {
+  const btn = (label: string, fn: () => void, dis: boolean) => (
+    <Pressable
+      onPress={dis ? undefined : fn}
+      style={{
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        borderWidth: 1.5,
+        borderColor: T.border,
+        backgroundColor: dis ? T.bg : '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Text style={{ fontFamily: FONT.b, fontSize: 20, color: dis ? T.txt3 : T.ink, lineHeight: 22 }}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      {btn('−', () => onChange(Math.max(min, value - step)), value <= min)}
+      <Text style={{ minWidth: 36, textAlign: 'center', fontFamily: FONT.xb, fontSize: 16, color: T.ink }}>
+        {value}
+      </Text>
+      {btn('+', () => onChange(Math.min(max, value + step)), value >= max)}
+    </View>
+  );
+}
+
 export function ErrorText({ children }: { children?: string }) {
   if (!children) return null;
   return (
