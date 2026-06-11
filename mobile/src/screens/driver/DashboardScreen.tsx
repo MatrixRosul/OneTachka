@@ -1,18 +1,67 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT, VEHICLE_LABEL } from '../../theme';
 import { Screen } from '../../components/Screen';
 import { Avatar, Card, PrimaryBtn, Stars, ScreenHeader } from '../../components/ui';
 import { Icon } from '../../components/Icon';
+import { IncomingOrderModal } from '../../components/IncomingOrderModal';
 import { useAuth } from '../../AuthContext';
 import { api, errText } from '../../api';
+import type { Order } from '../../types';
 
 export function DashboardScreen({ navigation }: { navigation: any }) {
   const { me, refresh } = useAuth();
   const [busy, setBusy] = useState(false);
-  if (!me) return null;
-  const prof = me.driverProfile;
+  const [incoming, setIncoming] = useState<Order | null>(null);
+  const [acceptBusy, setAcceptBusy] = useState(false);
+  const skipped = useRef<Set<string>>(new Set());
+  const prof = me?.driverProfile ?? null;
   const online = prof?.isAvailable ?? false;
+
+  // Поки водій на зміні — стежимо за новими заявками й пропонуємо прийняти (як у таксі).
+  useFocusEffect(
+    useCallback(() => {
+      if (!online) return;
+      let alive = true;
+      const poll = async () => {
+        try {
+          const list = await api.availableOrders();
+          if (!alive) return;
+          setIncoming((prev) => prev ?? list.find((o) => !skipped.current.has(o.id)) ?? null);
+        } catch {
+          /* ignore (e.g. profile_required) */
+        }
+      };
+      poll();
+      const t = setInterval(poll, 4000);
+      return () => {
+        alive = false;
+        clearInterval(t);
+      };
+    }, [online]),
+  );
+
+  if (!me) return null;
+
+  async function acceptIncoming() {
+    if (!incoming) return;
+    setAcceptBusy(true);
+    try {
+      await api.accept(incoming.id);
+      setIncoming(null);
+      navigation.navigate('Замовлення');
+    } catch {
+      skipped.current.add(incoming.id);
+      setIncoming(null);
+    } finally {
+      setAcceptBusy(false);
+    }
+  }
+  function skipIncoming() {
+    if (incoming) skipped.current.add(incoming.id);
+    setIncoming(null);
+  }
 
   async function toggle() {
     if (!prof) return;
@@ -28,6 +77,7 @@ export function DashboardScreen({ navigation }: { navigation: any }) {
   }
 
   return (
+    <>
     <Screen onRefresh={refresh}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 18 }}>
         <Avatar initials={(me.fullName ?? 'В')[0]} size={46} ring />
@@ -103,13 +153,18 @@ export function DashboardScreen({ navigation }: { navigation: any }) {
             </Card>
           </View>
 
-          <View style={{ marginTop: 6 }}>
+          <View style={{ marginTop: 6, gap: 10 }}>
             <PrimaryBtn icon="search" onPress={() => navigation.navigate('Доступні')}>
               Доступні заявки
+            </PrimaryBtn>
+            <PrimaryBtn color={T.surface} txt={T.ink} onPress={() => navigation.navigate('Заробіток')} style={{ borderWidth: 1.5, borderColor: T.border }}>
+              Заробіток і виплати
             </PrimaryBtn>
           </View>
         </>
       )}
     </Screen>
+    <IncomingOrderModal order={incoming} onAccept={acceptIncoming} onSkip={skipIncoming} busy={acceptBusy} />
+    </>
   );
 }

@@ -94,6 +94,8 @@ export const api = {
   setStatus: (id: string, status: OrderStatus) =>
     request<Order>('POST', `/orders/${id}/status`, { status }),
   cancel: (id: string) => request<Order>('POST', `/orders/${id}/cancel`),
+  setPrice: (id: string, price: number) =>
+    request<Order>('POST', `/orders/${id}/price`, { price }),
   review: (id: string, b: { score: number; comment?: string }) =>
     request<Review>('POST', `/orders/${id}/review`, b),
 };

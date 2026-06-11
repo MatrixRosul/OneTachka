@@ -6,6 +6,7 @@ import { Screen } from '../../components/Screen';
 import { ScreenHeader, PrimaryBtn } from '../../components/ui';
 import { OrderCard } from '../../components/OrderCard';
 import { ReviewForm } from '../../components/ReviewForm';
+import { PriceEditor } from '../../components/PriceEditor';
 import { api, errText } from '../../api';
 import type { Order, OrderStatus } from '../../types';
 
@@ -54,6 +55,9 @@ export function DriverOrdersScreen() {
       )}
       {orders.map((o) => (
         <OrderCard key={o.id} order={o}>
+          {(o.status === 'ACCEPTED' || o.status === 'IN_PROGRESS') && (
+            <PriceEditor order={o} onChanged={load} />
+          )}
           {o.status === 'ACCEPTED' && (
             <>
               <PrimaryBtn onPress={() => act(() => api.setStatus(o.id, 'IN_PROGRESS' as OrderStatus))}>
