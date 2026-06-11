@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
 import { T, FONT, VEHICLE_LABEL } from '../../theme';
 import { Screen } from '../../components/Screen';
-import { Card, PrimaryBtn, SectionTitle, ScreenHeader, ErrorText, Toggle, Stepper } from '../../components/ui';
+import { Card, PrimaryBtn, SectionTitle, ErrorText, Toggle, Stepper } from '../../components/ui';
 import { Icon, Truck } from '../../components/Icon';
 import { api, errText } from '../../api';
 import type { VehicleType } from '../../types';
@@ -152,8 +152,6 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
 
   return (
     <Screen>
-      <ScreenHeader title="Нова заявка" />
-
       {/* addresses — minimalist, no coordinates */}
       <Card style={{ paddingVertical: 4 }}>
         {addrRow(T.green, 'dot', 'Звідки', pickup, setPickup, true)}

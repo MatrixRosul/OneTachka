@@ -3,7 +3,7 @@ import { Text, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT } from '../../theme';
 import { Screen } from '../../components/Screen';
-import { ScreenHeader, PrimaryBtn, Card } from '../../components/ui';
+import { PrimaryBtn, Card } from '../../components/ui';
 import { OrderCard } from '../../components/OrderCard';
 import { ApiError, api, errText } from '../../api';
 import type { Order } from '../../types';
@@ -52,7 +52,6 @@ export function AvailableScreen() {
         setRefreshing(false);
       }}
     >
-      <ScreenHeader title="Доступні заявки" />
       {notice ? (
         <Card style={{ backgroundColor: '#FFF7E0', borderColor: '#F0D890' }}>
           <Text style={{ fontFamily: FONT.m, fontSize: 13.5, color: T.txt2 }}>{notice}</Text>
