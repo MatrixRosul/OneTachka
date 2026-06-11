@@ -285,10 +285,38 @@ export function Stepper({
   );
 }
 
+export function ReviewedBadge() {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <Icon name="check" size={15} color={T.green} />
+      <Text style={{ fontFamily: FONT.sb, fontSize: 13, color: T.green }}>Ви залишили відгук</Text>
+    </View>
+  );
+}
+
 export function ErrorText({ children }: { children?: string }) {
   if (!children) return null;
   return (
     <Text style={{ fontFamily: FONT.m, fontSize: 13, color: T.red, marginVertical: 6 }}>
+      {children}
+    </Text>
+  );
+}
+
+export function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Text
+      style={{
+        fontFamily: FONT.b,
+        fontSize: 12,
+        color: T.txt3,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        marginLeft: 4,
+        marginTop: 4,
+        marginBottom: 8,
+      }}
+    >
       {children}
     </Text>
   );

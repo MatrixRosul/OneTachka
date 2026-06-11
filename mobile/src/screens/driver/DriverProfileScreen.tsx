@@ -3,7 +3,7 @@ import { View, Text, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT } from '../../theme';
 import { Screen } from '../../components/Screen';
-import { Avatar, Card, PrimaryBtn, Field, SectionTitle, ScreenHeader, ErrorText, StatCards, ListCard, Row } from '../../components/ui';
+import { Avatar, Card, PrimaryBtn, Field, GroupLabel, ErrorText, StatCards, ListCard, Row } from '../../components/ui';
 import { VehiclePicker } from '../../components/VehiclePicker';
 import { useAuth } from '../../AuthContext';
 import { api, errText } from '../../api';
@@ -48,9 +48,7 @@ export function DriverProfileScreen({ navigation }: { navigation: any }) {
 
   return (
     <Screen>
-      <ScreenHeader title="Профіль" />
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 18, marginTop: 4 }}>
         <Avatar initials={(me.fullName ?? 'В')[0]} size={64} ring />
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: FONT.xb, fontSize: 20, color: T.ink, letterSpacing: -0.5 }}>{me.fullName}</Text>
@@ -66,7 +64,7 @@ export function DriverProfileScreen({ navigation }: { navigation: any }) {
         ]}
       />
 
-      <SectionTitle>Профіль авто</SectionTitle>
+      <GroupLabel>Профіль авто</GroupLabel>
       <View style={{ marginBottom: 12 }}>
         <VehiclePicker value={vehicleType} onChange={setVehicleType} />
       </View>

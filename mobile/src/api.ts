@@ -1,3 +1,4 @@
+import { NativeModules } from 'react-native';
 import type {
   AuthResponse,
   DriverProfile,
@@ -12,11 +13,15 @@ import { readToken, writeToken } from './storage';
 
 // On web we derive the backend host from the page itself, so the same export
 // works on localhost, LAN IP, or an iPhone hotspot without rebuilding.
-// Native: set EXPO_PUBLIC_API_URL (LAN IP / 10.0.2.2 for Android emulator).
+// Native dev: derive it from the Metro bundle URL the same way, so the app
+// keeps working when the Mac's LAN IP changes. EXPO_PUBLIC_API_URL overrides.
 function defaultBase(): string {
   const g: any = globalThis;
   const host = g?.location?.hostname;
   if (host) return `http://${host}:8010`;
+  const script: string | undefined = NativeModules?.SourceCode?.scriptURL;
+  const m = script?.match(/^https?:\/\/([^:/]+)/);
+  if (m) return `http://${m[1]}:8010`;
   return 'http://localhost:8010';
 }
 const BASE = process.env.EXPO_PUBLIC_API_URL ?? defaultBase();

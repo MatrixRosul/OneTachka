@@ -9,7 +9,7 @@ from typing import List
 from sqlmodel import Session, select
 
 from app.errors import conflict, forbidden, not_found
-from app.models import DriverProfile, Order, OrderStatus, Role, User, VehicleType, utcnow
+from app.models import DriverProfile, Order, OrderStatus, Review, Role, User, VehicleType, utcnow
 from app.schemas.order import OrderCreate
 
 # Дозволені переходи "вперед", які робить призначений водій:
@@ -53,6 +53,18 @@ def list_orders_for(session: Session, user: User) -> List[Order]:
         stmt = select(Order).where(Order.driver_id == user.id)
     stmt = stmt.order_by(Order.created_at.desc())
     return list(session.exec(stmt).all())
+
+
+def reviewed_order_ids(session: Session, user_id: str, order_ids: List[str]) -> set:
+    """ID замовлень, які цей користувач уже оцінив (для прапорця reviewedByMe)."""
+    if not order_ids:
+        return set()
+    rows = session.exec(
+        select(Review.order_id).where(
+            Review.from_user_id == user_id, Review.order_id.in_(order_ids)
+        )
+    ).all()
+    return set(rows)
 
 
 def get_order_for(session: Session, user: User, order_id: str) -> Order:

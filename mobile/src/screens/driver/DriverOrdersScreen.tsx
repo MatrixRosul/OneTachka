@@ -3,7 +3,7 @@ import { View, Text, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT } from '../../theme';
 import { Screen } from '../../components/Screen';
-import { ScreenHeader, PrimaryBtn, Segmented } from '../../components/ui';
+import { ScreenHeader, PrimaryBtn, Segmented, ReviewedBadge } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { OrderCard } from '../../components/OrderCard';
 import { ReviewForm } from '../../components/ReviewForm';
@@ -105,7 +105,7 @@ export function DriverOrdersScreen() {
               Доставлено
             </PrimaryBtn>
           )}
-          {o.status === 'COMPLETED' && <ReviewForm orderId={o.id} />}
+          {o.status === 'COMPLETED' && (o.reviewedByMe ? <ReviewedBadge /> : <ReviewForm orderId={o.id} />)}
         </OrderCard>
       ))}
     </Screen>

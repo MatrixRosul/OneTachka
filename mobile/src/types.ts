@@ -47,6 +47,7 @@ export interface Order {
   createdAt: string;
   acceptedAt: string | null;
   completedAt: string | null;
+  reviewedByMe: boolean;
 }
 
 export interface Review {

@@ -50,6 +50,7 @@ class OrderPublic(CamelModel):
     created_at: datetime
     accepted_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    reviewed_by_me: bool = False  # чи поточний користувач уже залишив відгук
 
 
 class OrderStatusUpdate(CamelModel):

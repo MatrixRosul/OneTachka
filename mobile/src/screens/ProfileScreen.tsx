@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { T, FONT } from '../theme';
 import { Screen } from '../components/Screen';
-import { Avatar, StatCards, ListCard, Row, ScreenHeader, SectionTitle } from '../components/ui';
+import { Avatar, StatCards, ListCard, Row, GroupLabel } from '../components/ui';
 import { useAuth } from '../AuthContext';
 import { api } from '../api';
 
@@ -22,9 +22,7 @@ export function ProfileScreen({ navigation }: { navigation: any }) {
 
   return (
     <Screen>
-      <ScreenHeader title="Профіль" />
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 18, marginTop: 4 }}>
         <Avatar initials={(me.fullName ?? 'К')[0]} size={64} ring />
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: FONT.xb, fontSize: 20, color: T.ink, letterSpacing: -0.5 }}>{me.fullName}</Text>
@@ -46,13 +44,13 @@ export function ProfileScreen({ navigation }: { navigation: any }) {
         <Row icon="spark" title="Промокоди" onPress={() => stub('Промокоди')} last />
       </ListCard>
 
-      <SectionTitle>Безпека</SectionTitle>
+      <GroupLabel>Безпека</GroupLabel>
       <ListCard>
         <Row icon="shield" title="Верифікація" onPress={() => stub('Верифікація')} />
         <Row icon="user" title="Особисті дані" onPress={() => stub('Особисті дані')} last />
       </ListCard>
 
-      <SectionTitle>Бізнес</SectionTitle>
+      <GroupLabel>Бізнес</GroupLabel>
       <ListCard>
         <Row icon="box" title="Onetachka для бізнесу" detail="B2B" accent={T.accentDark} onPress={() => stub('Onetachka для бізнесу')} last />
       </ListCard>
