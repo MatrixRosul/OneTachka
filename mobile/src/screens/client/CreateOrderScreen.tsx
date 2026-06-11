@@ -4,12 +4,9 @@ import { T, FONT, VEHICLE_LABEL } from '../../theme';
 import { Screen } from '../../components/Screen';
 import { Card, PrimaryBtn, SectionTitle, ErrorText, Toggle, Stepper } from '../../components/ui';
 import { Icon, Truck } from '../../components/Icon';
+import { AddressField, type Place } from '../../components/AddressField';
 import { api, errText } from '../../api';
 import type { VehicleType } from '../../types';
-
-// Геокодування поза MVP — адреси вводимо текстом, координати шлемо дефолтні (валідні).
-const PICKUP = { lat: 48.6208, lng: 22.2879 };
-const DROPOFF = { lat: 48.4414, lng: 22.7178 };
 
 type Mode = 'euro' | 'usa' | 'exact';
 
@@ -50,8 +47,8 @@ function NumBox({ value, onChange, suffix, label, width }: {
 }
 
 export function CreateOrderScreen({ navigation }: { navigation: any }) {
-  const [pickup, setPickup] = useState('Ужгород, вул. Капушанська 12');
-  const [dropoff, setDropoff] = useState('Мукачево, вул. Духновича 4');
+  const [pickup, setPickup] = useState<Place>({ address: 'Ужгород, вул. Капушанська 12', lat: 48.6208, lng: 22.2879 });
+  const [dropoff, setDropoff] = useState<Place>({ address: 'Мукачево, вул. Духновича 4', lat: 48.4414, lng: 22.7178 });
 
   const [mode, setMode] = useState<Mode>('euro');
   const [pallets, setPallets] = useState(2);
@@ -77,19 +74,19 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
 
   async function submit() {
     setErr('');
-    if (pickup.trim().length < 3 || dropoff.trim().length < 3) {
+    if (pickup.address.trim().length < 3 || dropoff.address.trim().length < 3) {
       setErr('Вкажіть адреси «звідки» та «куди»');
       return;
     }
     setBusy(true);
     try {
       await api.createOrder({
-        pickupAddress: pickup.trim(),
-        pickupLat: PICKUP.lat,
-        pickupLng: PICKUP.lng,
-        dropoffAddress: dropoff.trim(),
-        dropoffLat: DROPOFF.lat,
-        dropoffLng: DROPOFF.lng,
+        pickupAddress: pickup.address.trim(),
+        pickupLat: pickup.lat,
+        pickupLng: pickup.lng,
+        dropoffAddress: dropoff.address.trim(),
+        dropoffLat: dropoff.lat,
+        dropoffLng: dropoff.lng,
         cargoType: sizeLabel.slice(0, 120),
         weightKg: Math.max(1, Math.round(weight)),
         vehicleType: veh.v,
@@ -125,37 +122,12 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
     );
   };
 
-  const addrRow = (color: string, iconName: 'dot' | 'pin', label: string, value: string, onChange: (v: string) => void, divider: boolean) => (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        paddingVertical: 12,
-        borderBottomWidth: divider ? 1 : 0,
-        borderBottomColor: T.line,
-      }}
-    >
-      <Icon name={iconName} size={iconName === 'dot' ? 14 : 16} color={color} />
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: FONT.sb, fontSize: 11, color: T.txt3 }}>{label}</Text>
-        <TextInput
-          value={value}
-          onChangeText={onChange}
-          placeholder="Адреса"
-          placeholderTextColor={T.txt3}
-          style={{ fontFamily: FONT.b, fontSize: 14.5, color: T.ink, padding: 0, marginTop: 1 }}
-        />
-      </View>
-    </View>
-  );
-
   return (
     <Screen>
-      {/* addresses — minimalist, no coordinates */}
+      {/* addresses — autocomplete (OSM), real address + coords */}
       <Card style={{ paddingVertical: 4 }}>
-        {addrRow(T.green, 'dot', 'Звідки', pickup, setPickup, true)}
-        {addrRow(T.accentDark, 'pin', 'Куди', dropoff, setDropoff, false)}
+        <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} divider />
+        <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} />
       </Card>
 
       {/* cargo size */}
