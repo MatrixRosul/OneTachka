@@ -2,10 +2,13 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from app.models import OrderStatus, VehicleType
 from app.schemas.base import CamelModel
+
+# Через цей ендпоінт водій рухає замовлення тільки вперед по цих станах.
+_STATUS_TARGETS = {OrderStatus.IN_PROGRESS, OrderStatus.COMPLETED}
 
 
 class OrderCreate(CamelModel):
@@ -45,3 +48,14 @@ class OrderPublic(CamelModel):
     created_at: datetime
     accepted_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+
+
+class OrderStatusUpdate(CamelModel):
+    status: OrderStatus
+
+    @field_validator("status")
+    @classmethod
+    def _only_forward_targets(cls, v: OrderStatus) -> OrderStatus:
+        if v not in _STATUS_TARGETS:
+            raise ValueError("status must be IN_PROGRESS or COMPLETED")
+        return v
