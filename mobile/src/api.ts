@@ -10,11 +10,16 @@ import type {
 } from './types';
 import { readToken, writeToken } from './storage';
 
-// Configure per environment. Web/iOS-sim: localhost works. Physical device:
-// set EXPO_PUBLIC_API_URL to your machine's LAN IP (e.g. http://192.168.1.5:8010).
-// Android emulator: http://10.0.2.2:8010
-const BASE =
-  process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8010';
+// On web we derive the backend host from the page itself, so the same export
+// works on localhost, LAN IP, or an iPhone hotspot without rebuilding.
+// Native: set EXPO_PUBLIC_API_URL (LAN IP / 10.0.2.2 for Android emulator).
+function defaultBase(): string {
+  const g: any = globalThis;
+  const host = g?.location?.hostname;
+  if (host) return `http://${host}:8010`;
+  return 'http://localhost:8010';
+}
+const BASE = process.env.EXPO_PUBLIC_API_URL ?? defaultBase();
 
 let token: string | null = null;
 

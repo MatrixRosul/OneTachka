@@ -5,6 +5,7 @@ import { Screen } from '../../components/Screen';
 import { Card, PrimaryBtn, SectionTitle, ErrorText, Toggle, Stepper } from '../../components/ui';
 import { Icon, Truck } from '../../components/Icon';
 import { AddressField, type Place } from '../../components/AddressField';
+import { MapPicker } from '../../components/MapPicker';
 import { api, errText } from '../../api';
 import type { VehicleType } from '../../types';
 
@@ -56,6 +57,9 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
   const [box, setBox] = useState({ l: 80, w: 60, h: 80, qty: 1 });
   const [weight, setWeight] = useState(500); // kg
   const [oversized, setOversized] = useState(false);
+
+  const [showMap, setShowMap] = useState(false);
+  const [mapTarget, setMapTarget] = useState<'pickup' | 'dropoff'>('pickup');
 
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -129,6 +133,41 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
         <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} divider />
         <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} />
       </Card>
+
+      {/* map picker */}
+      <Pressable
+        onPress={() => setShowMap((s) => !s)}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, marginBottom: 6 }}
+      >
+        <Icon name="pin" size={17} color={T.accentDark} />
+        <Text style={{ fontFamily: FONT.b, fontSize: 13.5, color: T.ink }}>
+          {showMap ? 'Сховати карту' : 'Обрати точку на карті'}
+        </Text>
+      </Pressable>
+      {showMap && (
+        <>
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+            {(['pickup', 'dropoff'] as const).map((k) => {
+              const on = mapTarget === k;
+              return (
+                <Pressable
+                  key={k}
+                  onPress={() => setMapTarget(k)}
+                  style={{ flex: 1, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? T.ink : '#fff', borderWidth: 1.5, borderColor: on ? T.ink : T.border }}
+                >
+                  <Text style={{ fontFamily: FONT.b, fontSize: 12.5, color: on ? '#fff' : T.txt }}>
+                    {k === 'pickup' ? 'Звідки' : 'Куди'}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <MapPicker
+            value={mapTarget === 'pickup' ? pickup : dropoff}
+            onPick={(p) => (mapTarget === 'pickup' ? setPickup(p) : setDropoff(p))}
+          />
+        </>
+      )}
 
       {/* cargo size */}
       <SectionTitle>Розмір вантажу</SectionTitle>
