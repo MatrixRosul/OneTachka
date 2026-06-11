@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, Alert, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Pressable, Alert } from 'react-native';
 import { T, FONT, VEHICLE_LABEL } from '../../theme';
 import { Screen } from '../../components/Screen';
 import { Card, PrimaryBtn, SectionTitle, ErrorText, Toggle, Stepper } from '../../components/ui';
@@ -7,7 +7,7 @@ import { Icon, Truck } from '../../components/Icon';
 import { AddressField, type Place } from '../../components/AddressField';
 import { MapPicker } from '../../components/MapPicker';
 import { DateTimeField } from '../../components/DateTimeField';
-import { CITIES, type City } from '../../cities';
+import { useCity } from '../../CityContext';
 import { api, errText } from '../../api';
 import type { VehicleType } from '../../types';
 
@@ -50,15 +50,14 @@ function NumBox({ value, onChange, suffix, label, width }: {
 }
 
 export function CreateOrderScreen({ navigation }: { navigation: any }) {
-  const [city, setCity] = useState<City>(CITIES[0]);
-  const [pickup, setPickup] = useState<Place>({ address: 'Ужгород, вул. Капушанська 12', lat: 48.6208, lng: 22.2879 });
-  const [dropoff, setDropoff] = useState<Place>({ address: 'Мукачево, вул. Духновича 4', lat: 48.4414, lng: 22.7178 });
+  const { city } = useCity();
+  const [pickup, setPickup] = useState<Place>({ address: city.name, lat: city.lat, lng: city.lng });
+  const [dropoff, setDropoff] = useState<Place>({ address: '', lat: city.lat, lng: city.lng });
 
-  function pickCity(c: City) {
-    setCity(c);
-    // «Ви тут» — точка завантаження стартує з центру міста, далі уточнюється.
-    setPickup({ address: c.name, lat: c.lat, lng: c.lng });
-  }
+  // Місто (з Головної) задає старт точки «Звідки».
+  useEffect(() => {
+    setPickup({ address: city.name, lat: city.lat, lng: city.lng });
+  }, [city]);
 
   const [mode, setMode] = useState<Mode>('euro');
   const [pallets, setPallets] = useState(2);
@@ -143,24 +142,7 @@ export function CreateOrderScreen({ navigation }: { navigation: any }) {
 
   return (
     <Screen>
-      {/* city selector — where the user is / near */}
-      <Text style={{ fontFamily: FONT.b, fontSize: 12, color: T.txt3, marginBottom: 8 }}>Ваше місто</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }} contentContainerStyle={{ gap: 8 }}>
-        {CITIES.map((c) => {
-          const on = c.name === city.name;
-          return (
-            <Pressable
-              key={c.name}
-              onPress={() => pickCity(c)}
-              style={{ paddingHorizontal: 14, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? T.ink : '#fff', borderWidth: 1.5, borderColor: on ? T.ink : T.border }}
-            >
-              <Text style={{ fontFamily: FONT.b, fontSize: 13, color: on ? '#fff' : T.txt }}>{c.name}</Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      {/* addresses — autocomplete (OSM), real address + coords */}
+      {/* addresses — autocomplete (OSM), biased to the city chosen on Home */}
       <Card style={{ paddingVertical: 4 }}>
         <AddressField icon="dot" iconColor={T.green} label="Звідки" value={pickup.address} onSelect={setPickup} near={city.name} divider />
         <AddressField icon="pin" iconColor={T.accentDark} label="Куди" value={dropoff.address} onSelect={setDropoff} near={city.name} />

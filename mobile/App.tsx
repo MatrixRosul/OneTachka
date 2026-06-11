@@ -12,6 +12,7 @@ import {
 } from '@expo-google-fonts/manrope';
 import { T } from './src/theme';
 import { AuthProvider } from './src/AuthContext';
+import { CityProvider } from './src/CityContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 export default function App() {
@@ -35,7 +36,9 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <AuthProvider>
-        <RootNavigator />
+        <CityProvider>
+          <RootNavigator />
+        </CityProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

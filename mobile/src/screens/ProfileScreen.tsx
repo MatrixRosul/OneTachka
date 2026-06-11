@@ -58,7 +58,7 @@ export function ProfileScreen({ navigation }: { navigation: any }) {
       <ListCard>
         <Row icon="chat" title="Підтримка" onPress={() => stub('Підтримка')} />
         <Row icon="menu" title="Налаштування" onPress={() => stub('Налаштування')} />
-        <Row icon="arrow" title="Вийти" accent={T.red} chevron={false} last onPress={logout} />
+        <Row icon="arrowUR" title="Вийти" accent={T.danger} chevron={false} last onPress={logout} />
       </ListCard>
     </Screen>
   );

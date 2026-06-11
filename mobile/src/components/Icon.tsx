@@ -4,7 +4,7 @@ import { T } from '../theme';
 
 export type IconName =
   | 'home' | 'box' | 'chat' | 'user' | 'pin' | 'arrow' | 'clock' | 'star'
-  | 'spark' | 'shield' | 'plus' | 'search' | 'dot' | 'chevR' | 'menu' | 'bell' | 'check';
+  | 'spark' | 'shield' | 'plus' | 'search' | 'dot' | 'chevR' | 'menu' | 'bell' | 'check' | 'arrowUR';
 
 export function Icon({
   name,
@@ -42,6 +42,7 @@ export function Icon({
     menu: <Path {...p} d="M4 7h16M4 12h16M4 17h16" />,
     bell: (<><Path {...p} d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" /><Path {...p} d="M10 20a2 2 0 0 0 4 0" /></>),
     check: <Path {...p} d="M5 12.5 10 17l9-10" />,
+    arrowUR: <Path {...p} d="M7 17 17 7M8 7h9v9" />,
   };
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">

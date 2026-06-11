@@ -14,6 +14,7 @@ export const T = {
   green: '#1FA86A',
   greenBg: '#E6F4EC',
   red: '#B00020',
+  danger: '#C2410C', // logout / destructive (per design)
   radSheet: 30,
   radCard: 22,
   radBtn: 16,
