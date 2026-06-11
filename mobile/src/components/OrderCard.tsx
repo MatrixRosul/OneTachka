@@ -12,8 +12,17 @@ function fmt(s: string | null): string {
 }
 
 export function OrderCard({ order, children }: { order: Order; children?: React.ReactNode }) {
+  const done = order.status === 'COMPLETED';
   return (
-    <Card>
+    <Card style={done ? { borderColor: T.green, borderWidth: 1.5 } : undefined}>
+      {done && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="check" size={13} color="#fff" />
+          </View>
+          <Text style={{ fontFamily: FONT.xb, fontSize: 13, color: T.green }}>Замовлення виконано</Text>
+        </View>
+      )}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <StatusPill status={order.status} />
         <Text style={{ fontFamily: FONT.sb, fontSize: 12.5, color: T.txt2 }}>
